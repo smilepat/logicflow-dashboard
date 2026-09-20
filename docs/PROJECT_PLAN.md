@@ -32,7 +32,8 @@
 
 ```
 Frontend: React 18 + TypeScript + Recharts + D3.js + TailwindCSS
-Backend: Supabase (PostgreSQL + Auth + Realtime)
+DB: Turso (libSQL/SQLite)
+Auth: 미정 (Auth.js 등 — Turso 에는 내장 Auth 가 없다)
 Graph: Neo4j (기존 유지)
 API: Next.js API Routes
 AI: Claude API
@@ -41,57 +42,15 @@ Deploy: Vercel
 
 ---
 
-## 🗄️ 통합 데이터 스키마 (Supabase)
+## 🗄️ 통합 데이터 스키마 (Turso)
 
-```sql
--- 학습자 프로필 + 목표
-CREATE TABLE learner_profile (
-  id UUID PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id),
-  target_grade INT,              -- 목표 등급
-  target_score INT,              -- 목표 점수
-  target_date DATE,              -- 수능일
-  preferred_udl_engagement TEXT, -- 'goal', 'interest', 'challenge'
-  preferred_udl_representation TEXT, -- 'text', 'visual', 'audio'
-  preferred_udl_action TEXT      -- 'choice', 'writing', 'speaking'
-);
+정본은 SQL 파일이다 (이 문서에 복사해 두면 낡는다).
 
--- 통합 진단 결과
-CREATE TABLE learner_diagnosis (
-  id UUID PRIMARY KEY,
-  user_id UUID,
-  diagnosis_date DATE,
-  vocab_total_known INT,
-  vocab_cefr_distribution JSONB,
-  reading_by_type JSONB,
-  microskill_scores JSONB,       -- 12 마이크로스킬
-  estimated_score INT,
-  estimated_grade INT,
-  weak_points TEXT[]
-);
+- `db/migrations/001_ontology.sql` — vocabulary · word_relations · skills · questions · question_skill_map · learner_mastery
+- `db/migrations/002_dashboard.sql` — learner_profile · learner_diagnosis · learning_path · progress_snapshot
+- 적용: `npm run db:migrate` → `npm run db:seed` → `npm run db:check`
 
--- UDL 학습 경로
-CREATE TABLE learning_path (
-  id UUID PRIMARY KEY,
-  user_id UUID,
-  path_type TEXT,                -- 'conservative', 'balanced', 'challenging'
-  udl_config JSONB,
-  path_nodes JSONB,
-  completion_rate FLOAT
-);
-
--- 진행 스냅샷 (시계열)
-CREATE TABLE progress_snapshot (
-  id UUID PRIMARY KEY,
-  user_id UUID,
-  snapshot_date DATE,
-  current_score INT,
-  target_score INT,
-  gap INT,
-  velocity FLOAT,                -- 일평균 상승률
-  predicted_achievement_date DATE
-);
-```
+Postgres 원본 대비 변경: UUID→TEXT, JSONB·배열→JSON 문자열(TEXT), TIMESTAMPTZ→ISO-8601 TEXT, `auth.users` 참조 제거(user_id 는 TEXT).
 
 ---
 
@@ -146,9 +105,9 @@ CREATE TABLE progress_snapshot (
 - 통합 계획서 작성
 
 ### Phase 1: 데이터 통합 (3주)
-- Supabase 통합 스키마 구축
-- Neo4j ↔ Supabase 동기화
-- 실시간 이벤트 파이프라인
+- Turso 통합 스키마 구축 (완료: 001·002 마이그레이션)
+- Neo4j ↔ Turso 동기화
+- 이벤트 파이프라인 (Realtime 구독 대신 폴링/SSE — Turso 에는 Realtime 이 없다)
 
 ### Phase 2: 대시보드 UI (4주)
 - 메인 레이아웃
@@ -191,7 +150,7 @@ logicflow-dashboard/
 │   │       ├── UDLSelector.tsx     # UDL 선택 UI
 │   │       └── PathPreview.tsx     # 경로 미리보기
 │   ├── lib/
-│   │   ├── supabase.ts
+│   │   ├── db.ts                   # Turso 클라이언트 + 조회 함수
 │   │   ├── neo4j.ts
 │   │   ├── pathEngine.ts           # 경로 생성 로직
 │   │   └── prediction.ts           # 예측 모델
@@ -201,8 +160,9 @@ logicflow-dashboard/
 │       └── api/
 │           ├── diagnosis.ts
 │           └── paths.ts
-├── supabase/
-│   └── migrations/
+├── db/
+│   ├── migrations/
+│   └── seed.sql
 └── docs/
     ├── DATA_INVENTORY.md
     └── API_CATALOG.md

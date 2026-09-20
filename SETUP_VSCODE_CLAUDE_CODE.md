@@ -61,17 +61,24 @@ CLAUDE.md와 docs/PROJECT_PLAN.md를 읽고 프로젝트 맥락을 파악한 다
 Phase 0 (기존 자원 감사)부터 이어서 진행해줘.
 ```
 
-## 6. Supabase 연결 (스키마 실행)
+## 6. Turso 연결 (스키마 실행)
 
-`supabase/schema.sql` 파일을 아직 Supabase에서 실행하지 않았다면:
+로컬 파일 DB 로는 계정 없이 바로 된다:
 
-1. https://supabase.com → 프로젝트 생성 (또는 기존 프로젝트 사용)
-2. SQL Editor → `supabase/schema.sql` 전체 내용 붙여넣기 → Run
-3. `.env.local` 파일 생성 (Claude Code에게 요청하면 만들어줌):
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=your-project-url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   ```
+```
+npm install
+npm run db:migrate   # db/migrations/*.sql 적용 (여러 번 실행해도 안전)
+npm run db:seed      # 테스트 데이터
+npm run db:check     # 테이블별 행 수
+npm test             # 인메모리 DB 로 스키마·시드·조회 검증
+```
+
+원격 Turso 를 쓰려면 (.env.example 참고):
+
+1. `turso db create logicflow-dashboard` (Windows 는 WSL 에서 turso CLI)
+2. `turso db show logicflow-dashboard --url` → `TURSO_DATABASE_URL`
+3. `turso db tokens create logicflow-dashboard` → `TURSO_AUTH_TOKEN`
+4. `.env.local` 에 두 값을 넣고 `node --env-file=.env.local scripts/db.mjs migrate`
 
 ## 7. 다음 세션에서 이어갈 때
 
@@ -96,6 +103,10 @@ logicflow-dashboard/
 ├── docs/
 │   ├── PROJECT_PLAN.md            # 전체 개발 계획 (Phase 0~4)
 │   └── DATA_INVENTORY.md          # 기존 자원(Turso/Neo4j/Firebase) 감사 템플릿
-└── supabase/
-    └── schema.sql                 # 6개 테이블 + 테스트 데이터
+├── db/
+│   ├── migrations/                # 001 온톨로지 코어, 002 대시보드 테이블 (Turso/SQLite)
+│   ├── seed.sql                   # 테스트 데이터
+│   └── _legacy_supabase_schema.sql.txt  # 전환 전 Postgres 원본(참고용)
+├── scripts/db.mjs                 # migrate / seed / check
+└── src/lib/db.ts                  # Turso 클라이언트 + 조회 함수
 ```

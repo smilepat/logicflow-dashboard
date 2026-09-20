@@ -16,9 +16,10 @@
 ## 기술 스택
 
 - **Frontend:** React 18 + TypeScript + Recharts + D3.js + TailwindCSS
-- **Backend:** Supabase (PostgreSQL + Auth + Realtime)
+- **DB:** Turso (libSQL/SQLite) — 온톨로지 코어 + 대시보드 테이블 (`db/migrations/`)
+- **Auth:** 미정 (Turso 에는 내장 Auth 가 없다 — Auth.js 등 후보, Phase 1 에서 결정)
 - **Graph:** Neo4j Aura (기존 지식 그래프 유지)
-- **Relational:** Turso/LibSQL (기존 기출/어휘 DB)
+- **Relational:** Turso/LibSQL (기존 기출/어휘 DB — 같은 엔진이라 통합이 단순해진다)
 - **Legacy:** Firebase (기존 진단 앱)
 - **AI:** Claude API
 - **Deploy:** Vercel

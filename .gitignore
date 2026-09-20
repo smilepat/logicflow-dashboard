@@ -7,3 +7,7 @@ dist/
 build/
 .DS_Store
 *.log
+
+# Turso 로컬 개발 DB
+local.db
+local.db-*

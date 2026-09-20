@@ -231,7 +231,7 @@ POST /api/diagnosis/submit
 - 통합 가능성: 
 
 ### 인증 방식
-- 현재 사용 중인 Auth: (Firebase Auth, Supabase Auth, 자체 구현 등)
+- 현재 사용 중인 Auth: (Firebase Auth, 자체 구현 등 — 신규 대시보드는 Turso 라 내장 Auth 없음)
 - 통합 계획: 
 
 ### 데이터 동기화
