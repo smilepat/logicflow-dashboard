@@ -1,3 +1,9 @@
+> ⏸️ **동결 (2026-09-20)** — 이 저장소는 **계획 문서**입니다. 구현은
+> [`smilepat/ontology-english-learning-solution`](https://github.com/smilepat/ontology-english-learning-solution)(LogicFlow)에서 합니다.
+> 이 계획의 3대 기능 중 진단 시각화와 UDL 경로는 이미 그 앱에 있고, 부족분(교사용 히트맵, 진단 진행선)은 그쪽에 이식했습니다.
+> `db/`의 Turso 스키마·`scripts/db.mjs`·테스트는 **참고 자산**으로 남깁니다(Supabase→Turso 전환 시 출발점).
+> 마이크로스킬 앱 통합 검토 결과는 LogicFlow 저장소의 `docs/AUDIT-MICRO-SKILLS-APP-2026-09-20.md` 참고.
+
 # LogicFlow Dashboard
 
 수능 영어 온톨로지 기반 적응형 학습 대시보드
